@@ -15,7 +15,7 @@ import { HandlerExecutor } from '../routing/handler-executor';
 import { RoomManager } from '../rooms/room-manager';
 import { UwsSocketImpl } from '../core/socket';
 import { LifecycleHooksManager } from './lifecycle-hooks';
-import { NestJsModuleRef, type ModuleRef } from '../../shared/di';
+import { DefaultModuleRef, NestJsModuleRef, type ModuleRef } from '../../shared/di';
 
 /**
  * Extended WebSocket with client data
@@ -173,9 +173,8 @@ export class UwsAdapter implements WebSocketAdapter {
     // Normalize null to undefined for consistent "no DI" representation
     const rawModuleRef = options?.moduleRef ?? undefined;
     let moduleRef: ModuleRef | undefined = rawModuleRef;
-    if (rawModuleRef && !('instances' in rawModuleRef)) {
-      // It's a NestJS ModuleRef (doesn't have our DefaultModuleRef's instances property)
-      // Wrap it with our adapter
+    if (rawModuleRef && !(rawModuleRef instanceof DefaultModuleRef)) {
+      // External Nestjs ModuleRef provided, wrap it with our adapter.
       moduleRef = NestJsModuleRef.create(rawModuleRef as unknown as NestModuleRef);
     }
     this.handlerExecutor = new HandlerExecutor({ moduleRef });
