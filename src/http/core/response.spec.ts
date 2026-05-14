@@ -536,9 +536,10 @@ describe('UwsResponse', () => {
       expect(mockUwsRes.writeHeader).toHaveBeenCalledWith('set-cookie', 'user=vikram');
     });
 
-    it('should throw if already sent', () => {
+    it('should be a no-op if already sent', () => {
       res.send('First');
-      expect(() => res.send('Second')).toThrow('Response already sent');
+      expect(() => res.send('Second')).not.toThrow();
+      expect(mockUwsRes.end).toHaveBeenCalledTimes(1);
     });
 
     it('should not throw if aborted', () => {

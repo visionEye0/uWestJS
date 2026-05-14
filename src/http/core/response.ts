@@ -1268,7 +1268,7 @@ export class UwsResponse extends Writable {
     }
 
     if (this.finished) {
-      throw new Error('Response already sent');
+      return;
     }
 
     if (this.sending) {
