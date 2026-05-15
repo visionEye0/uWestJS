@@ -86,11 +86,12 @@ export class BodyParser {
         this.abortError = new Error('Connection aborted');
         this.flushing = true; // Stop processing chunks
 
-        // Reject pending promise via dedicated abort callback
+        // abortCallback handles client disconnects
         if (this.abortCallback) {
           this.abortCallback();
         } else if (this.pendingReject) {
           // Only use pendingReject if abortCallback wasn't set
+          // pendingReject handles internal errors (size limit, stream error)
           this.pendingReject(this.abortError);
           this.pendingReject = undefined;
         }
