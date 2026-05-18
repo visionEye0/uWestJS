@@ -565,6 +565,41 @@ describe('UwsResponse', () => {
     });
   });
 
+  describe('HEAD request handling', () => {
+    it('should suppress body for HEAD request with content-length', () => {
+      res = createResponse();
+      const mockReq = { method: 'HEAD' } as any;
+      res.bindRequest(mockReq);
+
+      res.setHeader('content-length', '1024').send('Hello');
+
+      expect(mockUwsRes.endWithoutBody).toHaveBeenCalledWith(1024);
+      expect(mockUwsRes.end).not.toHaveBeenCalled();
+    });
+
+    it('should suppress body for HEAD request without content-length', () => {
+      res = createResponse();
+      const mockReq = { method: 'HEAD' } as any;
+      res.bindRequest(mockReq);
+
+      res.send('Hello');
+
+      expect(mockUwsRes.end).toHaveBeenCalledWith();
+      expect(mockUwsRes.endWithoutBody).not.toHaveBeenCalled();
+    });
+
+    it('should send body normally for GET request', () => {
+      res = createResponse();
+      const mockReq = { method: 'GET' } as any;
+      res.bindRequest(mockReq);
+
+      res.send('Hello');
+
+      expect(mockUwsRes.end).toHaveBeenCalledWith('Hello');
+      expect(mockUwsRes.endWithoutBody).not.toHaveBeenCalled();
+    });
+  });
+
   describe('json()', () => {
     beforeEach(() => {
       res = createResponse();
