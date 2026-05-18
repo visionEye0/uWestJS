@@ -1390,6 +1390,15 @@ export class UwsResponse extends Writable {
   }
 
   private endResponse(body: string | Buffer | undefined): void {
+    // HEAD responses must have identical headers to GET but no body (RFC 9110 §9.3.2)
+    if (this.req?.method === 'HEAD') {
+      if (this.contentLengthTotal !== undefined) {
+        this.uwsRes.endWithoutBody(this.contentLengthTotal);
+      } else {
+        this.uwsRes.end();
+      }
+      return;
+    }
     if (body !== undefined) {
       this.uwsRes.end(body);
       return;
